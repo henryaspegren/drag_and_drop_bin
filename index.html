@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title> Upload Files </title>
+  <style>
+  .dropbox {
+    height: 500px;
+    width: 500px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: dashed;
+    border-radius: 5px;
+    border-color: red;
+    border-width: 10px;
+  }
+  .droplabel {
+    vertical-align: middle;
+    line-height: 100px;
+    font: helvetica;
+    font-size: 40px;
+  }
+  </style>
+</head>
+<body>
+  <div id="dropbox" class="dropbox">
+    <div id="droplabel" class="droplabel">Drop Files Here</div>
+    <img id="preview">
+  </div>
+</body>
+
+<script type="text/javascript">
+  dropbox = document.getElementById("dropbox");
+  dropbox.addEventListener("dragenter", dragEnter, false);
+  dropbox.addEventListener("dragexit", dragExit, false);
+  dropbox.addEventListener("dragover", dragOver, false);
+  dropbox.addEventListener("drop", drop, false);
+
+  function dragEnter(evt) {
+    console.log('dragEnter');
+    evt.stopPropagation();
+    evt.preventDefault();
+  }
+
+  function dragExit(evt) {
+    console.log('dragExit');
+    evt.stopPropagation();
+    evt.preventDefault();
+  }
+
+  function dragOver(evt) {
+    console.log('dragOver');
+    evt.stopPropagation();
+    evt.preventDefault();
+  }
+
+  function sendData(file) {
+    console.log("Uploading file");
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/upload');
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        console.log('all done: '+xhr.status);
+        document.getElementById("droplabel").innerHTML = file.name + " uploaded!";
+      }
+      else {
+        console.log("Error occured");
+      }
+    };
+    xhr.send(file);
+  }
+
+  function handleReaderLoad(evt) {
+    var img = document.getElementById("preview");
+    img.src = evt.target.result;
+  }
+
+  function handleFiles(files) {
+     var file = files[0];
+     console.log(file);
+    document.getElementById("droplabel").innerHTML = "Uploading: " + file.name;
+
+    var reader = new FileReader();
+
+    reader.onload = handleReaderLoad;
+
+    reader.readAsDataURL(file);
+    sendData(file);
+
+  }
+
+  function drop(evt) {
+    console.log('drop');
+    evt.stopPropagation();
+    evt.preventDefault();
+    var files = evt.dataTransfer.files;
+    var count = files.length;
+    // Only call the handler if 1 or more files was dropped.
+    if (count > 0){
+      console.log("Files dropped");
+      handleFiles(files);
+    }
+  }
+</script>
+</html>
